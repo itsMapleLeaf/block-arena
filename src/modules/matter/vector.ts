@@ -1,5 +1,5 @@
 import { Vector } from "matter-js"
-import { clamp } from "./math"
+import { clamp } from "../helpers/clamp"
 
 export const originVector: Vector = { x: 0, y: 0 }
 
