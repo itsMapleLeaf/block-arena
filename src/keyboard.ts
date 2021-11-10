@@ -12,6 +12,6 @@ if (typeof window !== "undefined") {
   })
 }
 
-export function isDown(...keys: string[]) {
+export function isKeyDown(...keys: string[]) {
   return keys.some((key) => pressedKeys.has(key))
 }
