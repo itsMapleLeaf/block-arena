@@ -1,13 +1,16 @@
 import { useEffect, useRef } from "react"
+import { useAnimationLoop } from "../modules/dom/use-animation-loop"
+import { useWindowSize } from "../modules/dom/use-window-size"
 import { Game } from "../modules/game/game"
 import { GameRenderer } from "../modules/game/game-renderer"
-import { useAnimationLoop } from "../modules/dom/use-animation-loop"
+import { vectorFromSize } from "../modules/matter/vector"
 
 const game = new Game()
 
 export default function GamePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const renderRef = useRef<GameRenderer>()
+  const windowSize = useWindowSize()
 
   useEffect(() => game.run(), [])
 
@@ -15,14 +18,16 @@ export default function GamePage() {
     const renderer = (renderRef.current = new GameRenderer(
       game,
       canvasRef.current!,
+      windowSize,
     ))
     return renderer.run()
-  }, [])
+  }, [windowSize])
 
   useAnimationLoop((delta) => {
     game.update(delta)
     renderRef.current!.update()
+    game.player.updateCursorPosition(vectorFromSize(canvasRef.current!))
   })
 
-  return <canvas width={800} height={600} ref={canvasRef} />
+  return <canvas ref={canvasRef} style={{ display: "block" }} />
 }

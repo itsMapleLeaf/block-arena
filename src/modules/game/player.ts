@@ -49,10 +49,10 @@ export class Player {
     )
   }
 
-  updateCursorPosition() {
+  updateCursorPosition(canvasSize: Vector) {
     // get the angle from the player position to the cursor position
     const mouse = Vector.add(
-      Vector.sub(getMousePosition(), { x: 400, y: 300 }),
+      Vector.sub(getMousePosition(), Vector.div(canvasSize, 2)),
       this.playerBody.position,
     )
 

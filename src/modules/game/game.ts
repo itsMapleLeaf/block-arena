@@ -30,7 +30,6 @@ export class Game {
 
   update(delta: number) {
     this.player.move(delta)
-    this.player.updateCursorPosition()
     this.clampBoxesToWorld()
   }
 

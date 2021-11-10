@@ -25,3 +25,10 @@ export function lerpVectorClamped(
 ): Vector {
   return lerpVector(vector, target, clamp(amount, 0, 1))
 }
+
+export function vectorFromSize(size: {
+  width: number
+  height: number
+}): Vector {
+  return { x: size.width, y: size.height }
+}

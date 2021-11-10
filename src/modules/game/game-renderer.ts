@@ -1,15 +1,18 @@
 import { Render, Vector } from "matter-js"
-import { clampVector, originVector } from "../matter/vector"
-import { worldSize } from "./constants"
 import { Game } from "./game"
 
 export class GameRenderer {
   private render: Render
 
-  constructor(private game: Game, private canvas: HTMLCanvasElement) {
+  constructor(
+    private game: Game,
+    private canvas: HTMLCanvasElement,
+    private windowSize: { width: number; height: number },
+  ) {
     this.render = Render.create({
       canvas,
       options: {
+        ...windowSize,
         wireframes: false,
       },
 
@@ -27,10 +30,9 @@ export class GameRenderer {
   update() {
     const canvasSize = { x: this.canvas.width, y: this.canvas.height }
 
-    const topLeft = clampVector(
-      Vector.sub(this.game.player.position, Vector.div(canvasSize, 2)),
-      originVector,
-      Vector.sub(worldSize, canvasSize),
+    const topLeft = Vector.sub(
+      this.game.player.position,
+      Vector.div(canvasSize, 2),
     )
 
     Render.lookAt(this.render, {
