@@ -1,8 +1,9 @@
-import { Bodies, Body, Composite, Engine, Runner } from "matter-js"
+import { Bodies, Body, Composite, Engine, Runner, Vector } from "matter-js"
 import { worldSize } from "./constants"
 import { Player } from "./player"
 
 const boxSize = 100
+const grabDistance = boxSize * 1.5
 
 export class Game {
   readonly engine = Engine.create({
@@ -19,7 +20,22 @@ export class Game {
       ...this.boxes,
       this.player.playerCursorBody,
     ])
+
     this.randomizeBoxVelocities()
+
+    this.player.onGrab = (position) => {
+      const closestBox = [...this.boxes]
+        .map((box) => {
+          const distance = Vector.magnitude(Vector.sub(box.position, position))
+          return { box, distance }
+        })
+        .sort((a, b) => a.distance - b.distance)[0]
+
+      if (closestBox && closestBox.distance < grabDistance) {
+        Composite.remove(this.engine.world, closestBox.box)
+        this.boxes.delete(closestBox.box)
+      }
+    }
   }
 
   run() {
@@ -29,16 +45,16 @@ export class Game {
   }
 
   update(delta: number) {
-    this.player.move(delta)
+    this.player.update(delta)
     this.clampBoxesToWorld()
   }
 
   private createBoxes() {
-    const boxes: Body[] = []
+    const boxes = new Set<Body>()
     for (let i = 0; i < 150; i++) {
       const x = Math.random() * worldSize.x
       const y = Math.random() * worldSize.y
-      boxes.push(
+      boxes.add(
         Bodies.rectangle(x, y, boxSize, boxSize, {
           friction: 0,
           frictionAir: 0,
