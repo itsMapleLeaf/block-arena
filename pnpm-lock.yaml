@@ -7,6 +7,7 @@ specifiers:
   eslint: '7'
   eslint-config-next: 12.0.3
   matter-js: 0.17.1
+  nanoid: 3.1.30
   next: 12.0.3
   react: 17.0.2
   react-dom: 17.0.2
@@ -24,6 +25,7 @@ devDependencies:
   '@types/react': 17.0.34
   eslint: 7.32.0
   eslint-config-next: 12.0.3_f1f8405fe2323de6c036095b8b1e40f0
+  nanoid: 3.1.30
   typescript: 4.4.4
 
 packages:
@@ -1968,7 +1970,6 @@ packages:
     resolution: {integrity: sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
-    dev: false
 
   /natural-compare/1.4.0:
     resolution: {integrity: sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=}

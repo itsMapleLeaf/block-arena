@@ -1,6 +1,6 @@
 import { Bodies, Body, Vector } from "matter-js"
-import { isKeyDown } from "../dom/keyboard"
-import { getMousePosition, isMouseDown } from "../dom/mouse"
+import { isKeyDown } from "../input/keyboard"
+import { getMousePosition, isMouseDown } from "../input/mouse"
 import { clampVector, lerpVectorClamped, originVector } from "../matter/vector"
 import { worldSize } from "./constants"
 

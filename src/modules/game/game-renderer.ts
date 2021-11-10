@@ -1,13 +1,22 @@
 import { Render, Vector } from "matter-js"
-import { Game } from "./game"
+import {
+  lerpVectorClamped,
+  originVector,
+  vectorFromSize,
+} from "../matter/vector"
+import { Game, Player } from "./game"
+
+const cameraSpeed = 10
 
 export class GameRenderer {
   private render: Render
+  private cameraPosition = originVector
+  private cameraTarget = originVector
 
   constructor(
     private game: Game,
     private canvas: HTMLCanvasElement,
-    private windowSize: { width: number; height: number },
+    windowSize: { width: number; height: number },
   ) {
     this.render = Render.create({
       canvas,
@@ -22,24 +31,45 @@ export class GameRenderer {
     ;(this.render as any).engine = game.engine
   }
 
+  private get canvasSize() {
+    return vectorFromSize(this.canvas)
+  }
+
   run() {
     Render.run(this.render)
     return () => Render.stop(this.render)
   }
 
-  update() {
-    const canvasSize = { x: this.canvas.width, y: this.canvas.height }
-
-    const topLeft = Vector.sub(
-      this.game.player.position,
-      Vector.div(canvasSize, 2),
+  update(delta: number) {
+    this.cameraPosition = lerpVectorClamped(
+      this.cameraPosition,
+      this.cameraTarget,
+      delta * cameraSpeed,
     )
 
     Render.lookAt(this.render, {
       bounds: {
-        min: topLeft,
-        max: Vector.add(topLeft, canvasSize),
+        min: this.cameraPosition,
+        max: Vector.add(this.cameraPosition, this.canvasSize),
       },
     })
+  }
+
+  lookAtPlayer(playerId: Player["id"]) {
+    const player = this.game.getPlayer(playerId)
+    if (!player) return
+
+    this.cameraTarget = Vector.sub(
+      player.body.position,
+      Vector.div(this.canvasSize, 2),
+    )
+  }
+
+  toWorldPosition(screenPosition: Vector) {
+    return Vector.add(
+      screenPosition,
+      this.cameraPosition,
+      // Vector.sub(this.cameraPosition, Vector.div(this.canvasSize, 2)),
+    )
   }
 }

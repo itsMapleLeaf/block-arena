@@ -1,7 +1,7 @@
 import { Vector } from "matter-js"
 import { clamp } from "../helpers/clamp"
 
-export const originVector: Vector = { x: 0, y: 0 }
+export const originVector: Readonly<Vector> = { x: 0, y: 0 }
 
 export function clampVector(vector: Vector, min: Vector, max: Vector): Vector {
   return {

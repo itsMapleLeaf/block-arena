@@ -8,6 +8,7 @@ export function useAnimationLoop(callback: (deltaTimeSeconds: number) => void) {
 
   useEffect(() => {
     let running = true
+
     ;(async () => {
       let previousTime = await animationFrame()
       while (running) {
