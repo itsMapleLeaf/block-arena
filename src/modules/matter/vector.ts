@@ -26,6 +26,10 @@ export function lerpVectorClamped(
   return lerpVector(vector, target, clamp(amount, 0, 1))
 }
 
+export function vectorFromAngle(angle: number) {
+  return { x: Math.cos(angle), y: Math.sin(angle) }
+}
+
 export function vectorFromSize(size: {
   width: number
   height: number

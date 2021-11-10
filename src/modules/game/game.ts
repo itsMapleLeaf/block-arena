@@ -1,4 +1,5 @@
 import { Bodies, Body, Composite, Engine, Runner, Vector } from "matter-js"
+import { vectorFromAngle } from "../matter/vector"
 import { worldSize } from "./constants"
 import { Player } from "./player"
 
@@ -72,10 +73,7 @@ export class Game {
 
       Body.setVelocity(
         box,
-        Vector.neg({
-          x: Math.cos(angle) * blockThrowSpeed,
-          y: Math.sin(angle) * blockThrowSpeed,
-        }),
+        Vector.mult(vectorFromAngle(angle), -blockThrowSpeed),
       )
 
       Body.setAngle(box, angle)
