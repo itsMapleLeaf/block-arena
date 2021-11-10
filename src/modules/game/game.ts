@@ -4,6 +4,7 @@ import { Player } from "./player"
 
 const boxSize = 100
 const grabDistance = boxSize * 1.5
+const blockThrowSpeed = 12
 
 export class Game {
   readonly engine = Engine.create({
@@ -52,8 +53,32 @@ export class Game {
       return fakeBox
     }
 
-    this.player.onRelease = (box) => {
-      Composite.remove(this.engine.world, box)
+    this.player.onRelease = (oldBox, angle) => {
+      Composite.remove(this.engine.world, oldBox)
+
+      const box = Bodies.rectangle(
+        oldBox.position.x,
+        oldBox.position.y,
+        boxSize,
+        boxSize,
+        {
+          friction: 0,
+          frictionAir: 0,
+        },
+      )
+
+      Composite.add(this.engine.world, [box])
+      this.boxes.add(box)
+
+      Body.setVelocity(
+        box,
+        Vector.neg({
+          x: Math.cos(angle) * blockThrowSpeed,
+          y: Math.sin(angle) * blockThrowSpeed,
+        }),
+      )
+
+      Body.setAngle(box, angle)
     }
   }
 

@@ -27,7 +27,7 @@ export class Player {
   private grabbedBlock: Body | undefined
 
   onGrab = (position: Vector): Body | undefined => undefined
-  onRelease = (grabbedBlock: Body) => {}
+  onRelease = (grabbedBlock: Body, angle: number) => {}
 
   get position() {
     return this.body.position
@@ -71,12 +71,7 @@ export class Player {
       Vector.sub(getMousePosition(), Vector.div(canvasSize, 2)),
       this.body.position,
     )
-
-    const mouseAngle = Math.atan2(
-      mouse.y - this.body.position.y,
-      mouse.x - this.body.position.x,
-    )
-    return mouseAngle
+    return Vector.angle(this.body.position, mouse)
   }
 
   private move(delta: number) {
@@ -114,7 +109,10 @@ export class Player {
     if (this.grabPressed && !isMouseDown()) {
       this.grabPressed = false
       if (this.grabbedBlock) {
-        this.onRelease(this.grabbedBlock)
+        this.onRelease(
+          this.grabbedBlock,
+          Vector.angle(this.grabbedBlock.position, this.body.position),
+        )
         this.grabbedBlock = undefined
       }
     }
