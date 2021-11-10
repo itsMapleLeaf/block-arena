@@ -7,52 +7,76 @@ import { worldSize } from "./constants"
 const playerSpeed = 5
 const playerMovementSmoothing = 10
 const playerCursorOffset = 80
+const grabbedBlockOffset = 110
 
 export class Player {
-  readonly playerBody = Bodies.circle(
+  readonly body = Bodies.circle(
     Math.random() * worldSize.x,
     Math.random() * worldSize.y,
     30,
   )
 
-  readonly playerCursorBody = Bodies.circle(
-    this.playerBody.position.x,
-    this.playerBody.position.y,
+  readonly cursor = Bodies.circle(
+    this.body.position.x,
+    this.body.position.y,
     10,
     { isSensor: true },
   )
 
   private grabPressed = false
+  private grabbedBlock: Body | undefined
 
-  onGrab = (position: Vector) => {}
+  onGrab = (position: Vector): Body | undefined => undefined
+  onRelease = (grabbedBlock: Body) => {}
 
   get position() {
-    return this.playerBody.position
+    return this.body.position
   }
 
   update(delta: number) {
     this.move(delta)
     this.handleGrab()
+    this.cursor.render.visible = this.grabbedBlock === undefined
   }
 
   updateCursorPosition(canvasSize: Vector) {
     // get the angle from the player position to the cursor position
-    const mouse = Vector.add(
-      Vector.sub(getMousePosition(), Vector.div(canvasSize, 2)),
-      this.playerBody.position,
-    )
-
-    const mouseAngle = Math.atan2(
-      mouse.y - this.playerBody.position.y,
-      mouse.x - this.playerBody.position.x,
-    )
+    const mouseAngle = this.getMouseAngleFromSelf(canvasSize)
 
     // move the player cursor body to the player body position,
     // but offset by the angle
-    Body.setPosition(this.playerCursorBody, {
-      x: this.playerBody.position.x + Math.cos(mouseAngle) * playerCursorOffset,
-      y: this.playerBody.position.y + Math.sin(mouseAngle) * playerCursorOffset,
+    Body.setPosition(this.cursor, {
+      x: this.body.position.x + Math.cos(mouseAngle) * playerCursorOffset,
+      y: this.body.position.y + Math.sin(mouseAngle) * playerCursorOffset,
     })
+  }
+
+  updateGrabbedBlockPosition(canvasSize: Vector) {
+    if (!this.grabbedBlock) return
+
+    // get the angle from the player position to the cursor position
+    const mouseAngle = this.getMouseAngleFromSelf(canvasSize)
+
+    // move the player cursor body to the player body position,
+    // but offset by the angle
+    Body.setPosition(this.grabbedBlock, {
+      x: this.body.position.x + Math.cos(mouseAngle) * grabbedBlockOffset,
+      y: this.body.position.y + Math.sin(mouseAngle) * grabbedBlockOffset,
+    })
+    Body.setAngle(this.grabbedBlock, mouseAngle)
+  }
+
+  private getMouseAngleFromSelf(canvasSize: Vector) {
+    const mouse = Vector.add(
+      Vector.sub(getMousePosition(), Vector.div(canvasSize, 2)),
+      this.body.position,
+    )
+
+    const mouseAngle = Math.atan2(
+      mouse.y - this.body.position.y,
+      mouse.x - this.body.position.x,
+    )
+    return mouseAngle
   }
 
   private move(delta: number) {
@@ -63,9 +87,9 @@ export class Player {
     if (isKeyDown("KeyS")) velocity.y += playerSpeed
 
     Body.setVelocity(
-      this.playerBody,
+      this.body,
       lerpVectorClamped(
-        this.playerBody.velocity,
+        this.body.velocity,
         velocity,
         delta * playerMovementSmoothing,
       ),
@@ -73,19 +97,26 @@ export class Player {
 
     // keep player in the world bounds
     Body.setPosition(
-      this.playerBody,
-      clampVector(this.playerBody.position, originVector, worldSize),
+      this.body,
+      clampVector(this.body.position, originVector, worldSize),
     )
   }
 
   private handleGrab() {
     if (!this.grabPressed && isMouseDown()) {
       this.grabPressed = true
-      this.onGrab(this.playerCursorBody.position)
+      const block = this.onGrab(this.cursor.position)
+      if (block) {
+        this.grabbedBlock = block
+      }
     }
 
     if (this.grabPressed && !isMouseDown()) {
       this.grabPressed = false
+      if (this.grabbedBlock) {
+        this.onRelease(this.grabbedBlock)
+        this.grabbedBlock = undefined
+      }
     }
   }
 }

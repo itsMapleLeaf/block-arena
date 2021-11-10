@@ -27,6 +27,7 @@ export default function GamePage() {
     game.update(delta)
     renderRef.current!.update()
     game.player.updateCursorPosition(vectorFromSize(canvasRef.current!))
+    game.player.updateGrabbedBlockPosition(vectorFromSize(canvasRef.current!))
   })
 
   return <canvas ref={canvasRef} style={{ display: "block" }} />

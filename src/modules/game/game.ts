@@ -16,9 +16,9 @@ export class Game {
 
   constructor() {
     Composite.add(this.engine.world, [
-      this.player.playerBody,
+      this.player.body,
       ...this.boxes,
-      this.player.playerCursorBody,
+      this.player.cursor,
     ])
 
     this.randomizeBoxVelocities()
@@ -31,10 +31,29 @@ export class Game {
         })
         .sort((a, b) => a.distance - b.distance)[0]
 
-      if (closestBox && closestBox.distance < grabDistance) {
-        Composite.remove(this.engine.world, closestBox.box)
-        this.boxes.delete(closestBox.box)
-      }
+      const hasGrabbed = closestBox && closestBox.distance < grabDistance
+      if (!hasGrabbed) return
+
+      Composite.remove(this.engine.world, closestBox.box)
+      this.boxes.delete(closestBox.box)
+
+      const fakeBox = Bodies.rectangle(
+        position.x,
+        position.y,
+        boxSize,
+        boxSize,
+        {
+          isSensor: true,
+        },
+      )
+
+      Composite.add(this.engine.world, [fakeBox])
+
+      return fakeBox
+    }
+
+    this.player.onRelease = (box) => {
+      Composite.remove(this.engine.world, box)
     }
   }
 
